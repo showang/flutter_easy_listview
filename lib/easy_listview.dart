@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class EasyListView extends StatefulWidget {
-  EasyListView({
-    @required this.itemCount,
-    @required this.itemBuilder,
-    this.headerBuilder,
-    this.footerBuilder,
-    this.loadMore = false,
-    this.onLoadMore,
-    this.loadMoreWhenNoData = false,
-    this.dividerSize = 0.0,
-    this.dividerColor = Colors.black12,
-  }) : assert(itemBuilder != null);
+  EasyListView(
+      {@required this.itemCount,
+      @required this.itemBuilder,
+      this.headerBuilder,
+      this.footerBuilder,
+      this.loadMore = false,
+      this.onLoadMore,
+      this.loadMoreWhenNoData = false,
+      this.dividerSize = 0.0,
+      this.dividerColor = Colors.black12,
+      this.physics})
+      : assert(itemBuilder != null);
 
   final int itemCount;
   final WidgetBuilder headerBuilder;
@@ -26,6 +27,7 @@ class EasyListView extends StatefulWidget {
 
   final double dividerSize;
   final Color dividerColor;
+  final ScrollPhysics physics;
 
   @override
   State<StatefulWidget> createState() {
@@ -40,6 +42,7 @@ class EasyListViewState extends State<EasyListView> {
     var headerCount = _headerCount();
     var footerCount = _footerCount();
     return new ListView.builder(
+        physics: widget.physics,
         itemCount: itemCount + headerCount + footerCount,
         itemBuilder: (context, index) {
           if (hasHeader() && index == 0) return widget.headerBuilder(context);
