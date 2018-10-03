@@ -9,10 +9,12 @@ class EasyListView extends StatefulWidget {
     @required this.itemBuilder,
     this.headerBuilder,
     this.footerBuilder,
-    this.loadMore: false,
+    this.loadMore = false,
     this.onLoadMore,
-    this.dividerSize: 0.0,
-  });
+    this.loadMoreWhenNoData = false,
+    this.dividerSize = 0.0,
+    this.dividerColor = Colors.black12,
+  }) : assert(itemBuilder != null);
 
   final int itemCount;
   final WidgetBuilder headerBuilder;
@@ -20,7 +22,10 @@ class EasyListView extends StatefulWidget {
   final bool loadMore;
   final IndexedWidgetBuilder itemBuilder;
   final VoidCallback onLoadMore;
+  final bool loadMoreWhenNoData;
+
   final double dividerSize;
+  final Color dividerColor;
 
   @override
   State<StatefulWidget> createState() {
@@ -39,46 +44,38 @@ class EasyListViewState extends State<EasyListView> {
         itemBuilder: (context, index) {
           if (hasHeader() && index == 0) return widget.headerBuilder(context);
           if (widget.loadMore && index == headerCount + itemCount) {
-            if (widget.onLoadMore != null) widget.onLoadMore();
+            if ((widget.loadMoreWhenNoData ||
+                    (!widget.loadMoreWhenNoData && widget.itemCount > 0)) &&
+                widget.onLoadMore != null) widget.onLoadMore();
             return new Center(
-              child: new CircularProgressIndicator(),
+              child: CircularProgressIndicator(),
             );
           }
-          if (hasFooter() && index == headerCount + itemCount)
+          if (hasFooter() && index == headerCount + itemCount) {
             return widget.footerBuilder(context);
+          }
 
-          if (index.isEven)
-            return new Divider(
+          if (index.isOdd) {
+            return Divider(
               height: widget.dividerSize,
-              color: Colors.black12,
+              color: widget.dividerColor,
             );
+          }
 
-          var itemIndex = (index - headerCount) ~/ 2;
-          return widget.itemBuilder(context, itemIndex);
+          var dataIndex = (index - headerCount) ~/ 2;
+          return widget.itemBuilder(context, dataIndex);
         });
   }
 
-  int _headerCount() {
-    return hasHeader() ? 1 : 0;
-  }
+  int _headerCount() => hasHeader() ? 1 : 0;
 
-  int _footerCount() {
-    return hasFooter() || widget.loadMore ? 1 : 0;
-  }
+  int _footerCount() => (hasFooter() || widget.loadMore) ? 1 : 0;
 
-  int _itemCount() {
-    return widget.itemCount * (hasDivider() ? 2 : 1);
-  }
+  int _itemCount() => widget.itemCount * (hasDivider() ? 2 : 1);
 
-  bool hasDivider() {
-    return widget.dividerSize > 0.0 ? true : false;
-  }
+  bool hasDivider() => widget.dividerSize > 0.0 ? true : false;
 
-  bool hasHeader() {
-    return widget.headerBuilder != null;
-  }
+  bool hasHeader() => widget.headerBuilder != null;
 
-  bool hasFooter() {
-    return widget.footerBuilder != null;
-  }
+  bool hasFooter() => widget.footerBuilder != null;
 }
