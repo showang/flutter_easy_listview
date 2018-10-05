@@ -6,20 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class EasyListView extends StatefulWidget {
-  EasyListView(
-      {@required this.itemCount,
-      @required this.itemBuilder,
-      this.headerBuilder,
-      this.footerBuilder,
-      this.loadMore = false,
-      this.onLoadMore,
-      this.loadMoreWhenNoData = false,
-      this.loadMoreItemBuilder,
-      this.dividerSize = 0.0,
-      this.dividerColor = Colors.black12,
-      this.physics,
-      this.headerSliverBuilder})
-      : assert(itemBuilder != null);
+  EasyListView({
+    @required this.itemCount,
+    @required this.itemBuilder,
+    this.headerBuilder,
+    this.footerBuilder,
+    this.loadMore = false,
+    this.onLoadMore,
+    this.loadMoreWhenNoData = false,
+    this.loadMoreItemBuilder,
+    this.dividerSize = 0.0,
+    this.dividerColor = Colors.black12,
+    this.physics,
+    this.headerSliverBuilder,
+    this.controller,
+    this.foregroundWidget,
+  }) : assert(itemBuilder != null);
 
   final int itemCount;
   final WidgetBuilder headerBuilder;
@@ -29,11 +31,12 @@ class EasyListView extends StatefulWidget {
   final IndexedWidgetBuilder itemBuilder;
   final VoidCallback onLoadMore;
   final bool loadMoreWhenNoData;
-
   final double dividerSize;
   final Color dividerColor;
   final ScrollPhysics physics;
+  final ScrollController controller;
   final NestedScrollViewHeaderSliversBuilder headerSliverBuilder;
+  final Widget foregroundWidget;
 
   @override
   State<StatefulWidget> createState() {
@@ -48,7 +51,10 @@ class EasyListViewState extends State<EasyListView> {
         ? NestedScrollView(
             headerSliverBuilder: widget.headerSliverBuilder,
             body: MediaQuery.removePadding(
-                context: context, removeTop: true, child: _buildList()),
+              context: context,
+              removeTop: true,
+              child: _buildList(),
+            ),
           )
         : _buildList();
   }
@@ -58,41 +64,48 @@ class EasyListViewState extends State<EasyListView> {
     var headerCount = _headerCount();
     var footerCount = _footerCount();
     var hasDivider = _hasDivider();
-    return ListView.builder(
-        physics: widget.physics,
-        itemCount: itemCount + headerCount + footerCount,
-        itemBuilder: (context, index) {
-          if (hasHeader() && index == 0) return widget.headerBuilder(context);
-          if (widget.loadMore && index == headerCount + itemCount) {
-            if ((widget.loadMoreWhenNoData ||
-                    (!widget.loadMoreWhenNoData && widget.itemCount > 0)) &&
-                widget.onLoadMore != null) {
-              Timer(Duration(milliseconds: 100), widget.onLoadMore);
+    var children = <Widget>[
+      ListView.builder(
+          physics: widget.physics,
+          controller: widget.controller,
+          itemCount: itemCount + headerCount + footerCount,
+          itemBuilder: (context, index) {
+            if (hasHeader() && index == 0) return widget.headerBuilder(context);
+            if (widget.loadMore && index == headerCount + itemCount) {
+              if ((widget.loadMoreWhenNoData ||
+                      (!widget.loadMoreWhenNoData && widget.itemCount > 0)) &&
+                  widget.onLoadMore != null) {
+                Timer(Duration(milliseconds: 100), widget.onLoadMore);
+              }
+              return widget.loadMoreItemBuilder != null
+                  ? widget.loadMoreItemBuilder(context)
+                  : Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
             }
-            return widget.loadMoreItemBuilder != null
-                ? widget.loadMoreItemBuilder(context)
-                : Container(
-                    padding: EdgeInsets.all(8.0),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-          }
-          if (hasFooter() && index == headerCount + itemCount) {
-            return widget.footerBuilder(context);
-          }
+            if (hasFooter() && index == headerCount + itemCount) {
+              return widget.footerBuilder(context);
+            }
 
-          var dataIndex = index - headerCount;
-          if (hasDivider) {
-            return index.isEven
-                ? Divider(
-                    height: widget.dividerSize,
-                    color: widget.dividerColor,
-                  )
-                : widget.itemBuilder(context, dataIndex ~/ 2);
-          }
-          return widget.itemBuilder(context, dataIndex);
-        });
+            var dataIndex = index - headerCount;
+            if (hasDivider) {
+              return index.isEven
+                  ? Divider(
+                      height: widget.dividerSize,
+                      color: widget.dividerColor,
+                    )
+                  : widget.itemBuilder(context, dataIndex ~/ 2);
+            }
+            return widget.itemBuilder(context, dataIndex);
+          })
+    ];
+    if (widget.foregroundWidget != null) children.add(widget.foregroundWidget);
+    return Stack(
+      children: children,
+    );
   }
 
   int _headerCount() => hasHeader() ? 1 : 0;

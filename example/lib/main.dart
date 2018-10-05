@@ -30,6 +30,16 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   var itemCount = 20;
   var hasNextPage = true;
+  var foregroundWidget = Container(
+      alignment: AlignmentDirectional.center,
+      child: CircularProgressIndicator());
+
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(milliseconds: 3000),
+        () => setState(() => foregroundWidget = null));
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -39,10 +49,10 @@ class MyHomePageState extends State<MyHomePage> {
           footerBuilder: footerBuilder,
           itemCount: itemCount,
           itemBuilder: itemBuilder,
-          dividerSize: 2.0,
           dividerColor: Colors.grey,
           loadMore: hasNextPage,
           onLoadMore: onLoadMoreEvent,
+          foregroundWidget: foregroundWidget,
         ),
       );
 
