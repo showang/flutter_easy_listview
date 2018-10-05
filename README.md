@@ -1,3 +1,5 @@
+![pub](https://img.shields.io/pub/v/easy_listview.svg)
+
 # easy_listview
 
 A simple widget to help you to build ListView with header, footer, divider, and loadmore function.
