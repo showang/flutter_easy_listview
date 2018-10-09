@@ -17,7 +17,7 @@ Add this to your package's pubspec.yaml file:
 
 ```
 dependencies:
-  easy_listview: "^0.0.5"
+  easy_listview: "^0.0.6"
 ```
 
 ## 2. Install it

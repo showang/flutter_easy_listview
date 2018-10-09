@@ -1,6 +1,6 @@
 name: easy_listview
 description: A simple widget to help you to build ListView with header, footer, divider, and loadmore function.
-version: 0.0.5
+version: 0.0.6
 author: showang <showang730@gmail.com>
 homepage: https://github.com/showang
 
