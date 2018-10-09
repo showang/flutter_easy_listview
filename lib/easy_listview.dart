@@ -15,28 +15,28 @@ class EasyListView extends StatefulWidget {
     this.onLoadMore,
     this.loadMoreWhenNoData = false,
     this.loadMoreItemBuilder,
-    this.dividerSize = 0.0,
-    this.dividerColor = Colors.black12,
+    this.dividerBuilder,
     this.physics,
     this.headerSliverBuilder,
     this.controller,
     this.foregroundWidget,
+    this.padding,
   }) : assert(itemBuilder != null);
 
   final int itemCount;
   final WidgetBuilder headerBuilder;
   final WidgetBuilder footerBuilder;
   final WidgetBuilder loadMoreItemBuilder;
-  final bool loadMore;
   final IndexedWidgetBuilder itemBuilder;
-  final VoidCallback onLoadMore;
+  final IndexedWidgetBuilder dividerBuilder;
+  final bool loadMore;
   final bool loadMoreWhenNoData;
-  final double dividerSize;
-  final Color dividerColor;
+  final VoidCallback onLoadMore;
   final ScrollPhysics physics;
   final ScrollController controller;
   final NestedScrollViewHeaderSliversBuilder headerSliverBuilder;
   final Widget foregroundWidget;
+  final EdgeInsetsGeometry padding;
 
   @override
   State<StatefulWidget> createState() {
@@ -44,79 +44,126 @@ class EasyListView extends StatefulWidget {
   }
 }
 
+enum ItemType { header, footer, loadMore, data, dividerData }
+
 class EasyListViewState extends State<EasyListView> {
   @override
-  Widget build(BuildContext context) {
-    return widget.headerSliverBuilder != null
-        ? NestedScrollView(
-            headerSliverBuilder: widget.headerSliverBuilder,
-            body: MediaQuery.removePadding(
-              context: context,
-              removeTop: true,
-              child: _buildList(),
-            ),
-          )
-        : _buildList();
+  Widget build(BuildContext context) => widget.headerSliverBuilder != null
+      ? NestedScrollView(
+          headerSliverBuilder: widget.headerSliverBuilder,
+          body: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: _buildList(),
+          ),
+        )
+      : _buildList();
+
+  Widget _itemBuilder(context, index) {
+    var headerCount = _headerCount();
+    var totalItemCount = _dataItemCount() + headerCount + _footerCount();
+    switch (_itemType(index, totalItemCount)) {
+      case ItemType.header:
+        return widget.headerBuilder(context);
+      case ItemType.footer:
+        return widget.footerBuilder(context);
+      case ItemType.loadMore:
+        return _buildLoadMoreItem();
+      case ItemType.dividerData:
+        return _buildDividerWithData(index, index - headerCount);
+      case ItemType.data:
+      default:
+        return widget.itemBuilder(context, index - headerCount);
+    }
   }
 
   _buildList() {
-    var itemCount = _itemCount();
     var headerCount = _headerCount();
-    var footerCount = _footerCount();
-    var hasDivider = _hasDivider();
+    var totalItemCount = _dataItemCount() + headerCount + _footerCount();
     var children = <Widget>[
-      ListView.builder(
-          physics: widget.physics,
-          controller: widget.controller,
-          itemCount: itemCount + headerCount + footerCount,
-          itemBuilder: (context, index) {
-            if (hasHeader() && index == 0) return widget.headerBuilder(context);
-            if (widget.loadMore && index == headerCount + itemCount) {
-              if ((widget.loadMoreWhenNoData ||
-                      (!widget.loadMoreWhenNoData && widget.itemCount > 0)) &&
-                  widget.onLoadMore != null) {
-                Timer(Duration(milliseconds: 100), widget.onLoadMore);
-              }
-              return widget.loadMoreItemBuilder != null
-                  ? widget.loadMoreItemBuilder(context)
-                  : Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-            }
-            if (hasFooter() && index == headerCount + itemCount) {
-              return widget.footerBuilder(context);
-            }
-
-            var dataIndex = index - headerCount;
-            if (hasDivider) {
-              return index.isEven
-                  ? Divider(
-                      height: widget.dividerSize,
-                      color: widget.dividerColor,
-                    )
-                  : widget.itemBuilder(context, dataIndex ~/ 2);
-            }
-            return widget.itemBuilder(context, dataIndex);
-          })
+      _hasDivider()
+          ? ListView.builder(
+              physics: widget.physics,
+              padding: widget.padding,
+              controller: widget.controller,
+              itemCount: totalItemCount,
+              itemBuilder: _itemBuilder,
+            )
+          : ListView.separated(
+              physics: widget.physics,
+              padding: widget.padding,
+              controller: widget.controller,
+              itemCount: totalItemCount,
+              itemBuilder: _itemBuilder,
+              separatorBuilder: widget.dividerBuilder,
+            )
     ];
     if (widget.foregroundWidget != null) children.add(widget.foregroundWidget);
-    return Stack(
-      children: children,
-    );
+    return Stack(children: children);
   }
 
-  int _headerCount() => hasHeader() ? 1 : 0;
+  ItemType _itemType(itemIndex, totalItemCount) {
+    if (_isHeader(itemIndex)) {
+      return ItemType.header;
+    } else if (_isLoadMore(itemIndex, totalItemCount)) {
+      if ((widget.loadMoreWhenNoData ||
+              (!widget.loadMoreWhenNoData && widget.itemCount > 0)) &&
+          widget.onLoadMore != null) {
+        Timer(Duration(milliseconds: 50), widget.onLoadMore);
+      }
+      return ItemType.loadMore;
+    } else if (_isFooter(itemIndex, totalItemCount)) {
+      return ItemType.footer;
+    } else if (_hasDivider()) {
+      return ItemType.dividerData;
+    } else {
+      return ItemType.data;
+    }
+  }
 
-  int _footerCount() => (hasFooter() || widget.loadMore) ? 1 : 0;
+  Widget _buildLoadMoreItem() {
+    if ((widget.loadMoreWhenNoData ||
+            (!widget.loadMoreWhenNoData && widget.itemCount > 0)) &&
+        widget.onLoadMore != null) {
+      Timer(Duration(milliseconds: 50), widget.onLoadMore);
+    }
+    return widget.loadMoreItemBuilder != null
+        ? widget.loadMoreItemBuilder(context)
+        : _defaultLoadMore;
+  }
 
-  int _itemCount() => widget.itemCount * (_hasDivider() ? 2 : 1);
+  Widget _buildDividerWithData(index, dataIndex) => index.isEven
+      ? widget.dividerBuilder != null
+          ? widget.dividerBuilder(context, dataIndex ~/ 2)
+          : _defaultDivider
+      : widget.itemBuilder(context, dataIndex ~/ 2);
 
-  bool _hasDivider() => widget.dividerSize > 0.0 ? true : false;
+  bool _isHeader(itemIndex) => _hasHeader() && itemIndex == 0;
 
-  bool hasHeader() => widget.headerBuilder != null;
+  bool _isLoadMore(itemIndex, total) =>
+      widget.loadMore && itemIndex == total - 1;
 
-  bool hasFooter() => widget.footerBuilder != null;
+  bool _isFooter(itemIndex, total) => _hasFooter() && itemIndex == total - 1;
+
+  int _headerCount() => _hasHeader() ? 1 : 0;
+
+  int _footerCount() => (_hasFooter() || widget.loadMore) ? 1 : 0;
+
+  int _dataItemCount() =>
+      _hasDivider() ? widget.itemCount * 2 - 1 : widget.itemCount;
+
+  bool _hasDivider() => widget.dividerBuilder != null;
+
+  bool _hasHeader() => widget.headerBuilder != null;
+
+  bool _hasFooter() => widget.footerBuilder != null;
+
+  final _defaultLoadMore = Container(
+    padding: const EdgeInsets.all(8.0),
+    child: const Center(
+      child: const CircularProgressIndicator(),
+    ),
+  );
+
+  final _defaultDivider = const Divider(color: Colors.grey);
 }

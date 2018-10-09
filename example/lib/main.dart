@@ -6,23 +6,15 @@ import 'package:easy_listview/easy_listview.dart';
 void main() => runApp(ExampleApp());
 
 class ExampleApp extends StatelessWidget {
-  // This widget is the root of your application.
-
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'EasyListView Demo',
-      theme: ThemeData.light(),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'EasyListView Demo',
+        theme: ThemeData(accentColor: Colors.pinkAccent),
+        home: MyHomePage(),
+      );
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({this.title});
-
-  final String title;
-
   @override
   State<StatefulWidget> createState() => MyHomePageState();
 }
@@ -49,7 +41,7 @@ class MyHomePageState extends State<MyHomePage> {
           footerBuilder: footerBuilder,
           itemCount: itemCount,
           itemBuilder: itemBuilder,
-          dividerColor: Colors.grey,
+          dividerBuilder: dividerBuilder,
           loadMore: hasNextPage,
           onLoadMore: onLoadMoreEvent,
           foregroundWidget: foregroundWidget,
@@ -58,12 +50,15 @@ class MyHomePageState extends State<MyHomePage> {
 
   onLoadMoreEvent() {
     Timer(
-        Duration(milliseconds: 2000),
-        () => setState(() {
-              itemCount += 10;
-              hasNextPage = itemCount <= 40;
-            }));
+      Duration(milliseconds: 2000),
+      () => setState(() {
+            itemCount += 10;
+            hasNextPage = itemCount <= 40;
+          }),
+    );
   }
+
+  Widget dividerBuilder(context, index) => Divider(color: Colors.grey);
 
   var headerBuilder = (context) => Container(
         color: Colors.blue,
@@ -95,7 +90,7 @@ class MyHomePageState extends State<MyHomePage> {
         height: 60.0,
         alignment: AlignmentDirectional.center,
         child: Text(
-          "Item $index",
+          "Item with data index: $index",
           style: TextStyle(color: Colors.black87),
         ),
       );
