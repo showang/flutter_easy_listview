@@ -6,7 +6,7 @@ A simple widget to help you to build ListView with header, footer, divider, and 
 
 ## Usage
 
-Simple constructor for widget.
+Simple constructor for the widget.
 
 ```dart
 var listWidget = new EasyListView(
