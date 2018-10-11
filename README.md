@@ -34,7 +34,7 @@ There is an example in the repo.
 Add this to your package's pubspec.yaml file:
 
 
-```
+```yaml
 dependencies:
   easy_listview: "^0.0.6"
 ```
@@ -43,7 +43,7 @@ dependencies:
 You can install packages from the command line:
 with Flutter:
 
-```
+```shell
 $ flutter packages get
 ```
 Alternatively, your editor might support flutter packages get. Check the docs for your editor to learn more.
@@ -51,6 +51,6 @@ Alternatively, your editor might support flutter packages get. Check the docs fo
 ## 3. Import it
 Now in your Dart code, you can use:
 
-```
+```dart
 import 'package:easy_listview/easy_listview.dart';
 ```
