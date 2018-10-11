@@ -2,13 +2,30 @@
 
 # easy_listview
 
-A simple widget to help you to build ListView with header, footer, divider, and loadmore function.
+A simple widget to help you to build ListView with header, footer, divider, and load more function.
 
-## Getting Started
+## Usage
 
-For help getting started with Flutter, view our online [documentation](https://flutter.io/).
+Simple constructor for widget.
 
-For help on editing package code, view the [documentation](https://flutter.io/developing-packages/).
+```dart
+var listWidget = new EasyListView(
+          headerSliverBuilder: headerSliverBuilder,   // SliverAppBar...etc.
+          headerBuilder: headerBuilder,               // Header Widget Builder
+          footerBuilder: footerBuilder,               // Footer Widget Builder 
+          itemCount: itemCount,
+          itemBuilder: itemBuilder,
+          dividerBuilder: dividerBuilder,             // Custom Divider Builder
+          loadMore: hasNextPage,                      // Load more flag
+          onLoadMore: onLoadMoreEvent,                // Load more callback
+          foregroundWidget: foregroundWidget,         // Widget witch overlap on ListView
+          
+        );
+```
+
+## Example
+
+There is an example in the repo.
 
 # Use this package as a library
 ## 1. Depend on it

@@ -53,7 +53,7 @@ class MyHomePageState extends State<MyHomePage> {
       Duration(milliseconds: 2000),
       () => setState(() {
             itemCount += 10;
-            hasNextPage = itemCount <= 40;
+            hasNextPage = itemCount <= 30;
           }),
     );
   }
