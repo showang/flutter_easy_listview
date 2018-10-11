@@ -14,7 +14,7 @@ var listWidget = new EasyListView(
           headerBuilder: headerBuilder,               // Header Widget Builder
           footerBuilder: footerBuilder,               // Footer Widget Builder 
           itemCount: itemCount,
-          itemBuilder: itemBuilder,
+          itemBuilder: itemBuilder,                   // ItemBuilder with data index
           dividerBuilder: dividerBuilder,             // Custom Divider Builder
           loadMore: hasNextPage,                      // Load more flag
           onLoadMore: onLoadMoreEvent,                // Load more callback
@@ -26,6 +26,8 @@ var listWidget = new EasyListView(
 ## Example
 
 There is an example in the repo.
+
+<img src="https://user-images.githubusercontent.com/780712/46780315-970aa300-cd4e-11e8-8dcf-4921821ca454.gif" width="300" />
 
 # Use this package as a library
 ## 1. Depend on it
