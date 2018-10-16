@@ -81,22 +81,13 @@ class EasyListViewState extends State<EasyListView> {
     var headerCount = _headerCount();
     var totalItemCount = _dataItemCount() + headerCount + _footerCount();
     var children = <Widget>[
-      _hasDivider()
-          ? ListView.builder(
-              physics: widget.physics,
-              padding: widget.padding,
-              controller: widget.controller,
-              itemCount: totalItemCount,
-              itemBuilder: _itemBuilder,
-            )
-          : ListView.separated(
-              physics: widget.physics,
-              padding: widget.padding,
-              controller: widget.controller,
-              itemCount: totalItemCount,
-              itemBuilder: _itemBuilder,
-              separatorBuilder: widget.dividerBuilder,
-            )
+      ListView.builder(
+        physics: widget.physics,
+        padding: widget.padding,
+        controller: widget.controller,
+        itemCount: totalItemCount,
+        itemBuilder: _itemBuilder,
+      )
     ];
     if (widget.foregroundWidget != null) children.add(widget.foregroundWidget);
     return Stack(children: children);
