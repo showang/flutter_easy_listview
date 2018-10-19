@@ -21,6 +21,11 @@ class EasyListView extends StatefulWidget {
     this.controller,
     this.foregroundWidget,
     this.padding,
+    this.isSliverMode = false,
+    // [Not Recommended]
+    // Sliver mode will discard a lot of ListView variables (likes physics, controller),
+    // and each of items must be sliver.
+    // *Sliver mode will build all items when inited. (ListView item is built by lazy)*
   }) : assert(itemBuilder != null);
 
   final int itemCount;
@@ -37,6 +42,7 @@ class EasyListView extends StatefulWidget {
   final NestedScrollViewHeaderSliversBuilder headerSliverBuilder;
   final Widget foregroundWidget;
   final EdgeInsetsGeometry padding;
+  final bool isSliverMode;
 
   @override
   State<StatefulWidget> createState() {
@@ -81,13 +87,18 @@ class EasyListViewState extends State<EasyListView> {
     var headerCount = _headerCount();
     var totalItemCount = _dataItemCount() + headerCount + _footerCount();
     var children = <Widget>[
-      ListView.builder(
-        physics: widget.physics,
-        padding: widget.padding,
-        controller: widget.controller,
-        itemCount: totalItemCount,
-        itemBuilder: _itemBuilder,
-      )
+      widget.isSliverMode
+          ? CustomScrollView(
+              slivers: List.generate(
+                  totalItemCount, (index) => _itemBuilder(context, index)),
+            )
+          : ListView.builder(
+              physics: widget.physics,
+              padding: widget.padding,
+              controller: widget.controller,
+              itemCount: totalItemCount,
+              itemBuilder: _itemBuilder,
+            )
     ];
     if (widget.foregroundWidget != null) children.add(widget.foregroundWidget);
     return Stack(children: children);
@@ -120,13 +131,17 @@ class EasyListViewState extends State<EasyListView> {
     }
     return widget.loadMoreItemBuilder != null
         ? widget.loadMoreItemBuilder(context)
-        : _defaultLoadMore;
+        : widget.isSliverMode
+            ? SliverList(delegate: SliverChildListDelegate([_defaultLoadMore]))
+            : _defaultLoadMore;
   }
 
   Widget _buildDividerWithData(index, dataIndex) => index.isEven
       ? widget.dividerBuilder != null
           ? widget.dividerBuilder(context, dataIndex ~/ 2)
-          : _defaultDivider
+          : widget.isSliverMode
+              ? SliverList(delegate: SliverChildListDelegate([_defaultDivider]))
+              : _defaultDivider
       : widget.itemBuilder(context, dataIndex ~/ 2);
 
   bool _isHeader(itemIndex) => _hasHeader() && itemIndex == 0;

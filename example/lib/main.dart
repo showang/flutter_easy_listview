@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:easy_listview/easy_listview.dart';
@@ -39,7 +40,8 @@ class MyHomePageState extends State<MyHomePage> {
           headerSliverBuilder: headerSliverBuilder,
           headerBuilder: headerBuilder,
           footerBuilder: footerBuilder,
-          itemCount: itemCount,
+          itemCount: itemCount + 1,
+          // 1 for custom scroll view example.
           itemBuilder: itemBuilder,
           dividerBuilder: dividerBuilder,
           loadMore: hasNextPage,
@@ -58,7 +60,10 @@ class MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget dividerBuilder(context, index) => Divider(color: Colors.grey);
+  Widget dividerBuilder(context, index) => Divider(
+        color: Colors.grey,
+        height: 1.0,
+      );
 
   var headerBuilder = (context) => Container(
         color: Colors.blue,
@@ -86,14 +91,39 @@ class MyHomePageState extends State<MyHomePage> {
         ),
       );
 
-  var itemBuilder = (context, index) => Container(
-        height: 60.0,
-        alignment: AlignmentDirectional.center,
-        child: Text(
-          "Item with data index: $index",
-          style: TextStyle(color: Colors.black87),
+  static List<Widget> sliverItems = List.generate(
+    10,
+    (index) => Container(
+          color: Color((Random().nextDouble() * 0xFFFFFF).toInt() << 0)
+              .withOpacity(1.0),
+          padding: EdgeInsets.all(8.0),
+          height: 60.0,
+          alignment: AlignmentDirectional.center,
+          child: Text(
+            "This is sliver item \nin CustomScrollView",
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-      );
+  );
+
+  var itemBuilder = (context, index) => index == 0
+      ? Container(
+          height: 60.0,
+          child: CustomScrollView(
+            slivers: <Widget>[
+              SliverList(delegate: SliverChildListDelegate(sliverItems)),
+            ],
+            scrollDirection: Axis.horizontal,
+          ),
+        )
+      : Container(
+          height: 60.0,
+          alignment: AlignmentDirectional.center,
+          child: Text(
+            "Item with data index: $index",
+            style: TextStyle(color: Colors.black87),
+          ),
+        );
 
   var headerSliverBuilder = (context, _) => [
         SliverAppBar(
