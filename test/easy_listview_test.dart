@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:test/test.dart';
-
 import 'package:easy_listview/easy_listview.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test("test widget", () {

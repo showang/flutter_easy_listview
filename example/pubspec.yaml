@@ -1,4 +1,4 @@
-name: example
+name: easy_listview_example
 description: A EasyListView example project.
 
 # The following defines the version and build number for your application.
@@ -10,7 +10,7 @@ description: A EasyListView example project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.0.0 <3.0.0"
 
 dependencies:
   flutter:

@@ -108,11 +108,6 @@ class EasyListViewState extends State<EasyListView> {
     if (_isHeader(itemIndex)) {
       return ItemType.header;
     } else if (_isLoadMore(itemIndex, totalItemCount)) {
-      if ((widget.loadMoreWhenNoData ||
-              (!widget.loadMoreWhenNoData && widget.itemCount > 0)) &&
-          widget.onLoadMore != null) {
-        Timer(Duration(milliseconds: 50), widget.onLoadMore);
-      }
       return ItemType.loadMore;
     } else if (_isFooter(itemIndex, totalItemCount)) {
       return ItemType.footer;
