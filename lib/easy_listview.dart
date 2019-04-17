@@ -53,10 +53,15 @@ class EasyListView extends StatefulWidget {
 enum ItemType { header, footer, loadMore, data, dividerData }
 
 class EasyListViewState extends State<EasyListView> {
+  bool isNested() {
+    return widget.headerSliverBuilder != null;
+  }
+
   @override
-  Widget build(BuildContext context) => widget.headerSliverBuilder != null
+  Widget build(BuildContext context) => isNested()
       ? NestedScrollView(
           headerSliverBuilder: widget.headerSliverBuilder,
+          physics: widget.physics,
           controller: widget.controller,
           body: MediaQuery.removePadding(
             context: context,
@@ -94,10 +99,9 @@ class EasyListViewState extends State<EasyListView> {
                   totalItemCount, (index) => _itemBuilder(context, index)),
             )
           : ListView.builder(
-              physics: widget.physics,
+              physics: isNested() ? null : widget.physics,
+              controller: isNested() ? null : widget.controller,
               padding: widget.padding,
-              controller:
-                  widget.headerSliverBuilder != null ? null : widget.controller,
               itemCount: totalItemCount,
               itemBuilder: _itemBuilder,
             )
