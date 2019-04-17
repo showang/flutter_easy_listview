@@ -21,6 +21,7 @@ class EasyListView extends StatefulWidget {
     this.controller,
     this.foregroundWidget,
     this.padding,
+    this.scrollbarEnable = true,
     this.isSliverMode = false,
     // [Not Recommended]
     // Sliver mode will discard a lot of ListView variables (likes physics, controller),
@@ -36,6 +37,7 @@ class EasyListView extends StatefulWidget {
   final IndexedWidgetBuilder dividerBuilder;
   final bool loadMore;
   final bool loadMoreWhenNoData;
+  final bool scrollbarEnable;
   final VoidCallback onLoadMore;
   final ScrollPhysics physics;
   final ScrollController controller;
@@ -45,20 +47,17 @@ class EasyListView extends StatefulWidget {
   final bool isSliverMode;
 
   @override
-  State<StatefulWidget> createState() {
-    return EasyListViewState();
-  }
+  State<StatefulWidget> createState() => EasyListViewState();
 }
 
 enum ItemType { header, footer, loadMore, data, dividerData }
 
 class EasyListViewState extends State<EasyListView> {
-  bool isNested() {
-    return widget.headerSliverBuilder != null;
-  }
+
+  bool get isNested => widget.headerSliverBuilder != null;
 
   @override
-  Widget build(BuildContext context) => isNested()
+  Widget build(BuildContext context) => isNested
       ? NestedScrollView(
           headerSliverBuilder: widget.headerSliverBuilder,
           physics: widget.physics,
@@ -92,20 +91,19 @@ class EasyListViewState extends State<EasyListView> {
   _buildList() {
     var headerCount = _headerCount();
     var totalItemCount = _dataItemCount() + headerCount + _footerCount();
-    var children = <Widget>[
-      widget.isSliverMode
-          ? CustomScrollView(
-              slivers: List.generate(
-                  totalItemCount, (index) => _itemBuilder(context, index)),
-            )
-          : ListView.builder(
-              physics: isNested() ? null : widget.physics,
-              controller: isNested() ? null : widget.controller,
-              padding: widget.padding,
-              itemCount: totalItemCount,
-              itemBuilder: _itemBuilder,
-            )
-    ];
+    ScrollView listView =  widget.isSliverMode
+        ? CustomScrollView(
+      slivers: List.generate(
+          totalItemCount, (index) => _itemBuilder(context, index)),
+    ) : ListView.builder(
+      physics: isNested ? null : widget.physics,
+      controller: isNested ? null : widget.controller,
+      padding: widget.padding,
+      itemCount: totalItemCount,
+      itemBuilder: _itemBuilder,
+    );
+
+    List<Widget> children = widget.scrollbarEnable ? [Scrollbar(child: listView)] : [listView];
     if (widget.foregroundWidget != null) children.add(widget.foregroundWidget);
     return Stack(children: children);
   }

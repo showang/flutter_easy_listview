@@ -45,6 +45,7 @@ class MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         body: EasyListView(
+          physics: BouncingScrollPhysics(),
           controller: _controller,
           headerSliverBuilder: headerSliverBuilder,
           headerBuilder: headerBuilder,
