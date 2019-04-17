@@ -57,6 +57,7 @@ class EasyListViewState extends State<EasyListView> {
   Widget build(BuildContext context) => widget.headerSliverBuilder != null
       ? NestedScrollView(
           headerSliverBuilder: widget.headerSliverBuilder,
+          controller: widget.controller,
           body: MediaQuery.removePadding(
             context: context,
             removeTop: true,
@@ -95,7 +96,8 @@ class EasyListViewState extends State<EasyListView> {
           : ListView.builder(
               physics: widget.physics,
               padding: widget.padding,
-              controller: widget.controller,
+              controller:
+                  widget.headerSliverBuilder != null ? null : widget.controller,
               itemCount: totalItemCount,
               itemBuilder: _itemBuilder,
             )

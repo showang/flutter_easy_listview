@@ -36,7 +36,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  easy_listview: "^0.0.7"
+  easy_listview: {last_version}
 ```
 
 ## 2. Install it

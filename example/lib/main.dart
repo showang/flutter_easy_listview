@@ -26,17 +26,26 @@ class MyHomePageState extends State<MyHomePage> {
   var foregroundWidget = Container(
       alignment: AlignmentDirectional.center,
       child: CircularProgressIndicator());
+  ScrollController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = ScrollController();
     Timer(Duration(milliseconds: 3000),
         () => setState(() => foregroundWidget = null));
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => Scaffold(
         body: EasyListView(
+          controller: _controller,
           headerSliverBuilder: headerSliverBuilder,
           headerBuilder: headerBuilder,
           footerBuilder: footerBuilder,
@@ -117,12 +126,15 @@ class MyHomePageState extends State<MyHomePage> {
             scrollDirection: Axis.horizontal,
           ),
         )
-      : Container(
-          height: 60.0,
-          alignment: AlignmentDirectional.center,
-          child: Text(
-            "Item with data index: $index",
-            style: TextStyle(color: Colors.black87),
+      : InkWell(
+          onTap: () => print("On item $index clicked."),
+          child: Container(
+            height: 60.0,
+            alignment: AlignmentDirectional.center,
+            child: Text(
+              "Item with data index: $index",
+              style: TextStyle(color: Colors.black87),
+            ),
           ),
         );
 
