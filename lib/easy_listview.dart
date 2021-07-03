@@ -7,8 +7,8 @@ import 'package:flutter/widgets.dart';
 
 class EasyListView extends StatefulWidget {
   EasyListView({
-    @required this.itemCount,
-    @required this.itemBuilder,
+    required this.itemCount,
+    required this.itemBuilder,
     this.headerBuilder,
     this.footerBuilder,
     this.loadMore = false,
@@ -30,20 +30,20 @@ class EasyListView extends StatefulWidget {
   }) : assert(itemBuilder != null);
 
   final int itemCount;
-  final WidgetBuilder headerBuilder;
-  final WidgetBuilder footerBuilder;
-  final WidgetBuilder loadMoreItemBuilder;
+  final WidgetBuilder? headerBuilder;
+  final WidgetBuilder? footerBuilder;
+  final WidgetBuilder? loadMoreItemBuilder;
   final IndexedWidgetBuilder itemBuilder;
-  final IndexedWidgetBuilder dividerBuilder;
+  final IndexedWidgetBuilder? dividerBuilder;
   final bool loadMore;
   final bool loadMoreWhenNoData;
   final bool scrollbarEnable;
-  final VoidCallback onLoadMore;
-  final ScrollPhysics physics;
-  final ScrollController controller;
-  final NestedScrollViewHeaderSliversBuilder headerSliverBuilder;
-  final Widget foregroundWidget;
-  final EdgeInsetsGeometry padding;
+  final VoidCallback? onLoadMore;
+  final ScrollPhysics? physics;
+  final ScrollController? controller;
+  final NestedScrollViewHeaderSliversBuilder? headerSliverBuilder;
+  final Widget? foregroundWidget;
+  final EdgeInsetsGeometry? padding;
   final bool isSliverMode;
 
   @override
@@ -59,7 +59,7 @@ class EasyListViewState extends State<EasyListView> {
   @override
   Widget build(BuildContext context) => isNested
       ? NestedScrollView(
-          headerSliverBuilder: widget.headerSliverBuilder,
+          headerSliverBuilder: widget.headerSliverBuilder!,
           physics: widget.physics,
           controller: widget.controller,
           body: MediaQuery.removePadding(
@@ -75,9 +75,9 @@ class EasyListViewState extends State<EasyListView> {
     var totalItemCount = _dataItemCount() + headerCount + _footerCount();
     switch (_itemType(index, totalItemCount)) {
       case ItemType.header:
-        return widget.headerBuilder(context);
+        return widget.headerBuilder!(context);
       case ItemType.footer:
-        return widget.footerBuilder(context);
+        return widget.footerBuilder!(context);
       case ItemType.loadMore:
         return _buildLoadMoreItem();
       case ItemType.dividerData:
@@ -103,9 +103,9 @@ class EasyListViewState extends State<EasyListView> {
       itemBuilder: _itemBuilder,
     );
 
-    List<Widget> children = widget.scrollbarEnable ? [Scrollbar(child: listView)] : [listView];
+    List<Widget?> children = widget.scrollbarEnable ? [Scrollbar(child: listView)] : [listView];
     if (widget.foregroundWidget != null) children.add(widget.foregroundWidget);
-    return Stack(children: children);
+    return Stack(children: children as List<Widget>);
   }
 
   ItemType _itemType(itemIndex, totalItemCount) {
@@ -126,10 +126,10 @@ class EasyListViewState extends State<EasyListView> {
     if ((widget.loadMoreWhenNoData ||
             (!widget.loadMoreWhenNoData && widget.itemCount > 0)) &&
         widget.onLoadMore != null) {
-      Timer(Duration(milliseconds: 50), widget.onLoadMore);
+      Timer(Duration(milliseconds: 50), widget.onLoadMore!);
     }
     return widget.loadMoreItemBuilder != null
-        ? widget.loadMoreItemBuilder(context)
+        ? widget.loadMoreItemBuilder!(context)
         : widget.isSliverMode
             ? SliverList(delegate: SliverChildListDelegate([_defaultLoadMore]))
             : _defaultLoadMore;
@@ -137,7 +137,7 @@ class EasyListViewState extends State<EasyListView> {
 
   Widget _buildDividerWithData(index, dataIndex) => index.isEven
       ? widget.dividerBuilder != null
-          ? widget.dividerBuilder(context, dataIndex ~/ 2)
+          ? widget.dividerBuilder!(context, dataIndex ~/ 2)
           : widget.isSliverMode
               ? SliverList(delegate: SliverChildListDelegate([_defaultDivider]))
               : _defaultDivider
