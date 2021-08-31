@@ -155,7 +155,7 @@ class EasyListViewState extends State<EasyListView> {
   int _footerCount() => (_hasFooter() || widget.loadMore) ? 1 : 0;
 
   int _dataItemCount() =>
-      _hasDivider() ? widget.itemCount * 2 - 1 : widget.itemCount;
+      _hasDivider() && widget.itemCount > 0 ? widget.itemCount * 2 - 1 : widget.itemCount;
 
   bool _hasDivider() => widget.dividerBuilder != null;
 
