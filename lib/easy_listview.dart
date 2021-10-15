@@ -53,7 +53,6 @@ class EasyListView extends StatefulWidget {
 enum ItemType { header, footer, loadMore, data, dividerData }
 
 class EasyListViewState extends State<EasyListView> {
-
   bool get isNested => widget.headerSliverBuilder != null;
 
   @override
@@ -91,21 +90,23 @@ class EasyListViewState extends State<EasyListView> {
   _buildList() {
     var headerCount = _headerCount();
     var totalItemCount = _dataItemCount() + headerCount + _footerCount();
-    ScrollView listView =  widget.isSliverMode
+    ScrollView listView = widget.isSliverMode
         ? CustomScrollView(
-      slivers: List.generate(
-          totalItemCount, (index) => _itemBuilder(context, index)),
-    ) : ListView.builder(
-      physics: isNested ? null : widget.physics,
-      controller: isNested ? null : widget.controller,
-      padding: widget.padding,
-      itemCount: totalItemCount,
-      itemBuilder: _itemBuilder,
-    );
+            slivers: List.generate(
+                totalItemCount, (index) => _itemBuilder(context, index)),
+          )
+        : ListView.builder(
+            physics: isNested ? null : widget.physics,
+            controller: isNested ? null : widget.controller,
+            padding: widget.padding,
+            itemCount: totalItemCount,
+            itemBuilder: _itemBuilder,
+          );
 
-    List<Widget?> children = widget.scrollbarEnable ? [Scrollbar(child: listView)] : [listView];
-    if (widget.foregroundWidget != null) children.add(widget.foregroundWidget);
-    return Stack(children: children as List<Widget>);
+    List<Widget> children =
+        widget.scrollbarEnable ? [Scrollbar(child: listView)] : [listView];
+    if (widget.foregroundWidget != null) children.add(widget.foregroundWidget!);
+    return Stack(children: children);
   }
 
   ItemType _itemType(itemIndex, totalItemCount) {
@@ -155,7 +156,7 @@ class EasyListViewState extends State<EasyListView> {
   int _footerCount() => (_hasFooter() || widget.loadMore) ? 1 : 0;
 
   int _dataItemCount() =>
-      _hasDivider() ? widget.itemCount * 2 - 1 : widget.itemCount;
+      _hasDivider() ? widget.itemCount * 2 : widget.itemCount;
 
   bool _hasDivider() => widget.dividerBuilder != null;
 
